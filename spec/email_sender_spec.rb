@@ -15,16 +15,6 @@ def vacation_information
 	}
 end
 
-def emailLocals
-	{ 	name: "Gregory Dutcher",
-		first_name: "Gregory",
-		email: "gdutcher@thoughtworks.com",
-		start_date: "10.31.2013",
-		vacation_balance: "10.3",
-		accrual_rate: "10"
-	}
-end
-
 def wrongColumnsCSVFileName
 	'./spec/wrong_columns.csv'
 end
@@ -48,15 +38,6 @@ describe EmailSender do
 	end
 
 	describe 'The SMTP Email sending functionality'	do
-
-		describe '#formatEmailContent' do
-			it 'should put necessary fields into content of email message' do
-				emailContent = @emailSender.renderEmailContent(emailLocals)
-				emailLocals.each do |key, value|
-					expect(emailContent).to include(value)
-				end
-			end
-		end
 
 		describe '#sendEmail' do
 			it "should send an email with the right email content, sender and receiver information" do
