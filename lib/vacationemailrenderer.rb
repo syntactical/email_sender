@@ -1,5 +1,9 @@
 class VacationEmailRenderer
 
+	def marker
+		'AUNIQUEMARKER'
+	end
+
 	def renderEmailContent(locals)
 
 body = <<-EOF
@@ -33,7 +37,7 @@ To: #{locals[:name]} <#{locals[:email]}>
 Subject: Your Vacation Balance
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=#{@marker}
---#{@marker}
+--#{marker}
 EOF
 
 content = <<-EOF
@@ -41,7 +45,7 @@ Content-Type: text/plain
 Content-Transfer-Encoding:8bit
 
 #{body}
---#{@marker}
+--#{marker}
 EOF
 
 		emailInformation + content

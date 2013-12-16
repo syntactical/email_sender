@@ -14,7 +14,6 @@ class EmailSender
 		@csvUtility = letterConfiguration[:csvUtility]
 		@necessaryColumns = letterConfiguration[:necessaryColumns]
 		@smtpSender = smtpSender
-		@marker = "AUNIQUEMARKER"
 	end
 
 	def sendEmail(emailContent, sender, receiver)
