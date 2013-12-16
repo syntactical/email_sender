@@ -4,60 +4,17 @@ require 'csv'
 require 'ostruct'
 require 'erb'
 require 'net/smtp'
-
-class Output
-  def display(message)
-    puts message
-  end
-end
-
-class STMPSenderFake
-	def sendEmail(emailContent, sender, receiver)
-	end
-end
-
-class STMPSender
-	def sendEmail(emailContent, sender, receiver)
-		Net::SMTP.start('192.168.1.102', 25, 'thoughtworks.com') do |smtp|
-		  smtp.send_message(emailContent, sender, receiver )
-		end			
-	end
-end
+require 'output'
+require 'smtpSender'
+require 'smtpSenderFake'
 
 class EmailSender
 
-	def initialize(letterConfiguration, smtpSender = STMPSenderFake.new )
-		@csvFileName = letterConfiguration[:csvFileName]
+	def initialize(letterConfiguration, smtpSender = STMPSenderFake.new)
+		@csvUtility = letterConfiguration[:csvUtility]
 		@necessaryColumns = letterConfiguration[:necessaryColumns]
 		@smtpSender = smtpSender
 		@marker = "AUNIQUEMARKER"
-	end
-
-	def getHeaders(csvFileName = @csvFileName)
-		CSV.read(csvFileName, :encoding => 'windows-1251:utf-8').shift.map{|x| x.downcase}
-	end
-
-	def hasAllNecessaryColumns(csvFileName = @csvFileName)
-		@necessaryColumns.all? { |key, value| getHeaders.include?(value) }
-	end
-
-	def hasEmptyRowsAndCells(csvFileName = @csvFileName)
-		parse(csvFileName).each_value do |employeeInfo|
-			employeeInfo.each_value do |cell|
-				return true if cell.nil?
-			end
-		end
-		false
-	end
-
-	def parse(csvFileName = @csvFileName)
-		employees = {}
-
-		CSV.foreach(csvFileName, :headers => true, :header_converters => :symbol, :converters => :all, :encoding => 'windows-1251:utf-8') do |row|
-			employees[row.fields[3]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-		end
-
-		employees
 	end
 
 	def renderEmailContent(locals)
@@ -72,7 +29,13 @@ Start date: #{locals[:start_date]}
 Rollover days as of January 1, 2014:  #{locals[:vacation_balance]}
 Initial accrual rate: #{locals[:accrual_rate]}
 
-reminder about people starting with 7 personal days
+All employees begin the year with 7 personal days.  If your start date is after September 1
+of a given year, you are allotted 3 personal days for that year.  Similary, if your start date
+is between May 1 and August 31, you are allotted 4 personal days for that year.  Employees
+that start between January 1 and April 31 have 7 personal days.
+
+Note: This calculator is meant to be a tool and does not give an official vacation balance.
+Please inquire at TKTKTKTKTKTKTKTKKTKTKTKTKTKTK for official vacation balances.
 
 Thank you,
 

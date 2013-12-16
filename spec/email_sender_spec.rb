@@ -47,35 +47,6 @@ describe EmailSender do
 		@emailSender = EmailSender.new(vacation_information)
 	end
 
-	describe 'The CSV parsing functionality' do
-	
-		describe '#hasEmptyRowsAndCells' do
-			it 'should check if there are any empty cells in a row in csv file' do
-				expect(@emailSender.hasEmptyRowsAndCells(emptyCellInRowCSVFileName)).to be_true
-			end
-
-			it 'should check if there are any empty rows in csv file' do
-				expect(@emailSender.hasEmptyRowsAndCells(emptyRowWithNilsCSVFileName)).to be_true
-			end
-		end
-
-		describe '#parse' do
-			it 'should return hash of employee IDs mapped to employee information' do
-				expectedParsedData = {}
-
-				CSV.foreach(vacation_information[:csvFileName], :headers => true, :header_converters => :symbol, :converters => :all) do |row|
-					expectedParsedData[row.fields[3]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-				end
-
-				actualParsedData = @emailSender.parse
-
-				actualParsedData.each do |key, value|
-					expect(actualParsedData[key]).to eq(value)
-				end
-			end
-		end
-	end
-
 	describe 'The SMTP Email sending functionality'	do
 
 		describe '#formatEmailContent' do
@@ -89,20 +60,17 @@ describe EmailSender do
 
 		describe '#sendEmail' do
 			it "should send an email with the right email content, sender and receiver information" do
-				smtpSender = double("smtpSender")				
+				smtpSender = double("smtpSender")
 
 				emailContent = @emailSender.renderEmailContent(emailLocals)
-				@emailSender.makePDF(emailContent, test[:pdfTestFilename])
 
-				fileName = test[:pdfTestFilename]
-				emailContentWithAttachment = @emailSender.appendAttachment(emailContent, fileName)
 				sender = "asaavedr@thoughtworks.com"
 				receivers = ["gdutcher@thoughtworks.com", "x@thoughtworks.com"]
 
-				smtpSender.should_receive(:sendEmail).with(emailContentWithAttachment, sender, receivers)
+				smtpSender.should_receive(:sendEmail).with(emailContent, sender, receivers)
 		
 				emailSender = EmailSender.new(vacation_information, smtpSender)
-				emailSender.sendEmail(emailContentWithAttachment, sender, receivers)
+				emailSender.sendEmail(emailContent, sender, receivers)
 			end	
 		end
 
